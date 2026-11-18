@@ -72,7 +72,7 @@ jobs:
           registry: ${{ secrets.REGISTRY }}
          
           repo: actapp
-          region: ap-southeast-2
+          region: ${{ secrets.AWS_REGION }}
           auto_tag: Latest, ${{github.run_number}}
           daemon_off: false
           dockerfile: ./Dockerfile
