@@ -50,7 +50,7 @@ jobs:
  # JOB 2: Build Docker Image and Push to AWS ECR
   Build_And_Publish:
     name: Build and Publish Docker Image
-    #needs: Testing
+    needs: Testing
     runs-on: ubuntu-latest
 
     steps:
