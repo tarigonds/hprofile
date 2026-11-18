@@ -23,19 +23,15 @@ jobs:
       - name: Maven Checkstyle
         run: mvn checkstyle:checkstyle
      #setup sonarcloud 
-      - name: Setup SonarQube
-        uses: warchant/setup-sonar-scanner@v8
-        with:
-          version: 7.2.0.5079
-
-     # Run sonar-scanner
-      - name: SonarQube Scan
-        run: sonar-scanner
-                -Dsonar.host.url=${{ secrets.SONAR_URL }}
-                -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-                -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-                -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-                -Dsonar.sources=src/
-                -Dsonar.java.binaries=target/classes
-                -Dsonar.junit.reportPaths=target/surefire-reports/
-                -Dsonar.scanner.skipJreProvisioning=true
+      - name: SonarCloud Analysis and Quality Gate
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+           mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:5.9.0.7382:sonar \
+           -Dsonar.host.url=https://sonarcloud.io \
+           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+           -Dsonar.sources=src/
+           -Dsonar.java.binaries=target/classes
+           -Dsonar.junit.reportPaths=target/surefire-reports/
+           -Dsonar.scanner.skipJreProvisioning=true
