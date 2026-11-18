@@ -46,3 +46,38 @@ jobs:
             -Dsonar.scanner.skipJreProvisioning=true
             -Dsonar.qualitygate.wait=true 
             -Dsonar.qualitygate.timeout=600
+
+  # ==========================================
+  # JOB 2: BUILD AND PUBLISH DOCKER IMAGE TO ECR
+  # ==========================================
+  Build_And_Publish:
+    needs: Testing
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # Checkout source code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Update application.properties with RDS credentials
+      # Keep your existing sed commands and secret names here.
+      - name: Update application.properties file
+        run: |
+          sed -i "s/^jdbc.username.*/jdbc.username=${{ secrets.RDS_USERNAME }}/" src/main/resources/application.properties
+          sed -i "s/^jdbc.password.*/jdbc.password=${{ secrets.RDS_PASSWORD }}/" src/main/resources/application.properties
+          sed -i "s|^jdbc.url.*|jdbc.url=${{ secrets.RDS_URL }}|" src/main/resources/application.properties
+
+      # Build and push Docker image to AWS ECR
+      - name: Build and Push Docker Image to ECR
+        uses: appleboy/docker-ecr-action@master
+        with:
+          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          registry: ${{ secrets.ECR_REGISTRY }}
+          repo: actapp
+          region: ${{ env.AWS_REGION }}
+          dockerfile: ./Dockerfile
+          context: ./
+          auto_tag: false
+          tags: latest,${{ github.run_number }}
