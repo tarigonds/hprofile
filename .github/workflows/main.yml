@@ -44,3 +44,5 @@ jobs:
             -Dsonar.java.binaries=target/classes
             -Dsonar.junit.reportPaths=target/surefire-reports/
             -Dsonar.scanner.skipJreProvisioning=true
+            -Dsonar.qualitygate.wait=true 
+            -Dsonar.qualitygate.timeout=600
