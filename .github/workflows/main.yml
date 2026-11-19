@@ -97,7 +97,7 @@ jobs:
 
   Deploy:
    
-   needs: Build and Publish Docker Image
+   needs: Build_And_Publish
    runs-on: ubuntu-latest
    steps:
       - name: Checkout code      
