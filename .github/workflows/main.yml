@@ -96,11 +96,10 @@ jobs:
 
 
   Deploy:
-    name: Build and Publish Docker Image
-    needs: Testing
-    runs-on: ubuntu-latest
-
-    steps:
+   name: Build and Publish Docker Image
+   needs: Testing
+   runs-on: ubuntu-latest
+   steps:
       - name: Checkout code      
    
  
