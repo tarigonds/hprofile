@@ -94,6 +94,6 @@ jobs:
           sed -i "s/db01/${{secrets.RDS_ENDPOINT}}/" src/main/resources/application.properties
    
  # JOB 3: Build and Deploy
-    Deploy:
+  Deploy:
   
   
