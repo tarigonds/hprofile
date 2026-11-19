@@ -95,7 +95,13 @@ jobs:
           sed -i "s/db01/${{secrets.RDS_ENDPOINT}}/" src/main/resources/application.properties
 
 
-  Deploy:        
+  Deploy:
+    name: Build and Publish Docker Image
+    needs: Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code      
    
  
   
