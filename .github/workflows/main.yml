@@ -57,7 +57,7 @@ jobs:
  # JOB 2: Build Docker Image and Push to AWS ECR
   Build_And_Publish:
     name: Build and Publish Docker Image
-    #needs: Testing
+    needs: Testing
     runs-on: ubuntu-latest
 
     steps:
@@ -97,7 +97,7 @@ jobs:
 
   Deploy:
    
-   #needs: Build_And_Publish
+   needs: Build_And_Publish
    runs-on: ubuntu-latest
    steps:
       - name: Checkout code      
@@ -112,13 +112,13 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       
 
-      - name: Render Amazon ECS task definition
+      - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: aws/taskdeffile.json
-          container-name: vproapp
-          image: ${{ steps.build-image.outputs.image }}
+          task-definition: ${{ env.TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ secrets.REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.run_number }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
