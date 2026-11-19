@@ -96,8 +96,8 @@ jobs:
 
 
   Deploy:
-   name: Build and Publish Docker Image
-   needs: Testing
+   name: Build and Deploy
+   needs: Build and Publish Docker Image
    runs-on: ubuntu-latest
    steps:
       - name: Checkout code      
