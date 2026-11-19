@@ -54,7 +54,6 @@ jobs:
             -Dsonar.qualitygate.wait=true 
             -Dsonar.qualitygate.timeout=600		
  
-
  # JOB 2: Build Docker Image and Push to AWS ECR
   Build_And_Publish:
     name: Build and Publish Docker Image
@@ -94,12 +93,6 @@ jobs:
           sed -i "s/^jdbc.username.*/jdbc.username\=${{secrets.RDS_USER}}/" src/main/resources/application.properties
           sed -i "s/^jdbc.password.*/jdbc.password\=${{secrets.RDS_PASS}}/" src/main/resources/application.properties
           sed -i "s/db01/${{secrets.RDS_ENDPOINT}}/" src/main/resources/application.properties
-
-# JOB 3: Build and Deploy
-  Build_And_Deploy:
-    needs: Build and Publish Docker Image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
+   
+ 
+  
