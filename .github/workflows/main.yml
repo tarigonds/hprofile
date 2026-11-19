@@ -97,10 +97,10 @@ jobs:
 
 # JOB 3: Build and Deploy
   Build_And_Publish:
-     name: Build and Publish Docker Image
-     needs: Testing
-     runs-on: ubuntu-latest
-     steps:
+    name: Build and Publish Docker Image
+    needs: Testing
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
   
