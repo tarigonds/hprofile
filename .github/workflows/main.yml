@@ -117,7 +117,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: aws/taskdeffile.json
+          task-definition: aws-files/taskdeffile.json
           container-name: vproapp
           image: ${{ secrets.REGISTRY }}/actapp:${{ github.run_number }}
 
