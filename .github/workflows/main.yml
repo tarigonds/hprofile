@@ -54,7 +54,8 @@ jobs:
             -Dsonar.qualitygate.wait=true 
             -Dsonar.qualitygate.timeout=600		
  
- # JOB 2: Build Docker Image and Push to AWS ECR
+ 
+  # JOB 2: Build Docker Image and Push to AWS ECR
   Build_And_Publish:
     name: Build and Publish Docker Image
     needs: Testing
@@ -78,6 +79,13 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # Update properties BEFORE building Docker image
+      - name: Update application.properties file
+        run: |
+          sed -i "s/^jdbc.username.*/jdbc.username=${{ secrets.RDS_USER }}/" src/main/resources/application.properties
+          sed -i "s/^jdbc.password.*/jdbc.password=${{ secrets.RDS_PASS }}/" src/main/resources/application.properties
+          sed -i "s/db01/${{ secrets.RDS_ENDPOINT }}/" src/main/resources/application.properties
+
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         with:
@@ -87,38 +95,31 @@ jobs:
           tags: |
             ${{ secrets.REGISTRY }}/actapp:latest
             ${{ secrets.REGISTRY }}/actapp:${{ github.run_number }}
-      
-      - name: Update application.properties file
-        run: |
-          sed -i "s/^jdbc.username.*/jdbc.username\=${{secrets.RDS_USER}}/" src/main/resources/application.properties
-          sed -i "s/^jdbc.password.*/jdbc.password\=${{secrets.RDS_PASS}}/" src/main/resources/application.properties
-          sed -i "s/db01/${{secrets.RDS_ENDPOINT}}/" src/main/resources/application.properties
 
-
+  # JOB 3: Deploy to AWS ECS
   Deploy:
-   
-   needs: Build_And_Publish
-   runs-on: ubuntu-latest
-   steps:
-      - name: Checkout code      
+    name: Deploy to ECS
+    needs: Build_And_Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
         uses: actions/checkout@v4
 
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
+      - name: Render Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.TASK_DEFINITION }}
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ secrets.REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.run_number }}
+          task-definition: aws/taskdeffile.json
+          container-name: vproapp
+          image: ${{ secrets.REGISTRY }}/actapp:${{ github.run_number }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
@@ -127,4 +128,3 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
-    
